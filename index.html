@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GeoValor Oriente</title>
+
+    <!-- =====================================================
+         LEAFLET
+         ===================================================== -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <!-- =====================================================
+         LEAFLET DRAW
+         ===================================================== -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
+    >
+
+    <!-- =====================================================
+         ESTILOS PROPIOS
+         ===================================================== -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+
+<!-- =========================================================
+     ENCABEZADO
+     ========================================================= -->
+<header class="topbar">
+
+    <div class="brand">
+
+        <div class="brand-logo">
+            <svg
+                viewBox="0 0 80 80"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <circle
+                    cx="40"
+                    cy="40"
+                    r="35"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                />
+
+                <path
+                    d="M24 50V28H56V50"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                />
+
+                <path
+                    d="M30 50V35M38 50V35M46 50V35"
+                    stroke="currentColor"
+                    stroke-width="3"
+                />
+
+                <path
+                    d="M55 25L65 15"
+                    stroke="#7ED957"
+                    stroke-width="4"
+                />
+
+                <path
+                    d="M59 15H65V21"
+                    fill="none"
+                    stroke="#7ED957"
+                    stroke-width="4"
+                />
+            </svg>
+        </div>
+
+        <div>
+            <h1>GeoValor Oriente</h1>
+            <p>Geoportal de Valores del Suelo</p>
+        </div>
+
+    </div>
+
+
+    <nav class="top-navigation">
+
+        <button
+            class="nav-button active"
+            data-section="mapa"
+            id="btnNavMapa"
+        >
+            <span>🗺️</span>
+            <strong>Mapa</strong>
+        </button>
+
+        <button
+            class="nav-button"
+            data-section="capas"
+            id="btnNavCapas"
+        >
+            <span>▱</span>
+            <strong>Capas</strong>
+        </button>
+
+        <button
+            class="nav-button"
+            data-section="medicion"
+            id="btnNavMedicion"
+        >
+            <span>📐</span>
+            <strong>Medición</strong>
+        </button>
+
+        <button
+            class="nav-button"
+            data-section="comparar"
+            id="btnNavComparar"
+        >
+            <span>⚖️</span>
+            <strong>Comparar</strong>
+        </button>
+
+        <button
+            class="nav-button"
+            data-section="estadisticas"
+            id="btnNavEstadisticas"
+        >
+            <span>📊</span>
+            <strong>Estadísticas</strong>
+        </button>
+
+    </nav>
+
+</header>
+
+
+<!-- =========================================================
+     CONTENEDOR PRINCIPAL
+     ========================================================= -->
+<main class="app-layout">
+
+
+    <!-- =====================================================
+         PANEL IZQUIERDO
+         ===================================================== -->
+    <aside class="left-panel">
+
+
+        <!-- CAPAS -->
+        <section class="panel-card">
+
+            <div class="panel-title-row">
+
+                <h2>CAPAS</h2>
+
+                <button
+                    class="icon-button"
+                    id="btnNuevaCapa"
+                    title="Agregar capa"
+                >
+                    +
+                </button>
+
+            </div>
+
+
+            <div id="layerList" class="layer-list">
+
+                <div class="empty-layers">
+                    No hay capas cargadas.
+                </div>
+
+            </div>
+
+
+            <div class="upload-buttons">
+
+                <label class="upload-button">
+
+                    📂 Cargar GeoJSON
+
+                    <input
+                        type="file"
+                        id="geojsonInput"
+                        accept=".geojson,.json,application/geo+json,application/json"
+                        hidden
+                    >
+
+                </label>
+
+
+                <label class="upload-button gpkg-button">
+
+                    🗺️ Cargar GeoPackage (.gpkg)
+
+                    <input
+                        type="file"
+                        id="gpkgInput"
+                        accept=".gpkg,application/geopackage+sqlite3,application/octet-stream"
+                        hidden
+                    >
+
+                </label>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- HERRAMIENTAS -->
+        <section class="panel-card">
+
+            <h2>HERRAMIENTAS</h2>
+
+            <div class="tool-list">
+
+                <button
+                    class="tool-button"
+                    id="btnMedirDistancia"
+                >
+                    📏
+                    <span>Medir distancia</span>
+                </button>
+
+
+                <button
+                    class="tool-button"
+                    id="btnMedirArea"
+                >
+                    ▱
+                    <span>Medir área</span>
+                </button>
+
+
+                <button
+                    class="tool-button"
+                    id="btnDibujar"
+                >
+                    🖊️
+                    <span>Dibujar en el mapa</span>
+                </button>
+
+
+                <button
+                    class="tool-button"
+                    id="btnEditar"
+                >
+                    🛠️
+                    <span>Editar elementos</span>
+                </button>
+
+
+                <button
+                    class="tool-button"
+                    id="btnLimpiarDibujos"
+                >
+                    🗑️
+                    <span>Limpiar dibujos</span>
+                </button>
+
+
+                <button
+                    class="tool-button"
+                    id="btnExportarDibujos"
+                >
+                    💾
+                    <span>Exportar dibujos</span>
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- LEYENDA -->
+        <section class="panel-card">
+
+            <h2>LEYENDA</h2>
+
+            <p class="legend-subtitle">
+                Valor del suelo (USD/m²)
+            </p>
+
+
+            <div class="legend-item">
+                <span class="legend-color low"></span>
+                <span>0 – 50</span>
+            </div>
+
+
+            <div class="legend-item">
+                <span class="legend-color medium"></span>
+                <span>50 – 100</span>
+            </div>
+
+
+            <div class="legend-item">
+                <span class="legend-color high"></span>
+                <span>100 – 200</span>
+            </div>
+
+
+            <div class="legend-item">
+                <span class="legend-color very-high"></span>
+                <span>Más de 200</span>
+            </div>
+
+        </section>
+
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAPA
+         ===================================================== -->
+    <section class="map-area">
+
+        <div id="map"></div>
+
+
+        <div
+            id="mapStatus"
+            class="map-status"
+        >
+            Selecciona un terreno para consultar su información.
+        </div>
+
+
+        <div
+            id="loadingOverlay"
+            class="loading-overlay hidden"
+        >
+
+            <div class="loading-box">
+
+                <div class="spinner"></div>
+
+                <p id="loadingText">
+                    Procesando información...
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         PANEL DERECHO
+         ===================================================== -->
+    <aside class="right-panel">
+
+
+        <!-- ESTADÍSTICAS -->
+        <section class="panel-card">
+
+            <h2>ESTADÍSTICAS GENERALES</h2>
+
+
+            <div class="main-stat">
+
+                <span>
+                    Valor promedio del suelo
+                </span>
+
+                <strong id="statAverage">
+                    — 
+                </strong>
+
+                <small>
+                    USD por m²
+                </small>
+
+            </div>
+
+
+            <div class="stat-grid">
+
+
+                <div class="stat-box">
+
+                    <span>Terrenos</span>
+
+                    <strong id="statCount">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-box">
+
+                    <span>Valor máximo</span>
+
+                    <strong id="statMax">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-box">
+
+                    <span>Valor mínimo</span>
+
+                    <strong id="statMin">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-box">
+
+                    <span>Área registrada</span>
+
+                    <strong id="statArea">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- DISTRIBUCIÓN -->
+        <section class="panel-card">
+
+            <h2>DISTRIBUCIÓN DE VALORES</h2>
+
+            <div
+                id="valueChart"
+                class="value-chart"
+            >
+
+                <div class="chart-empty">
+                    Carga un GeoPackage o GeoJSON para ver
+                    la distribución.
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- COMPARACIÓN -->
+        <section class="panel-card">
+
+            <h2>COMPARACIÓN DE ZONAS</h2>
+
+
+            <label class="field-label">
+                Grupo A
+            </label>
+
+            <select id="compareA">
+                <option value="">
+                    Seleccionar
+                </option>
+            </select>
+
+
+            <label class="field-label">
+                Grupo B
+            </label>
+
+            <select id="compareB">
+                <option value="">
+                    Seleccionar
+                </option>
+            </select>
+
+
+            <button
+                class="primary-button"
+                id="btnComparar"
+            >
+                Comparar
+            </button>
+
+
+            <div
+                id="comparisonResult"
+                class="comparison-result"
+            >
+                Selecciona dos grupos para comparar.
+            </div>
+
+        </section>
+
+
+
+        <!-- INFORMACIÓN DEL TERRENO -->
+        <section
+            class="panel-card terrain-card"
+            id="terrainInfo"
+        >
+
+            <h2>INFORMACIÓN DEL TERRENO</h2>
+
+            <div class="terrain-empty">
+                Haz clic sobre un punto del mapa.
+            </div>
+
+        </section>
+
+
+    </aside>
+
+</main>
+
+
+
+<!-- =========================================================
+     TOAST
+     ========================================================= -->
+<div
+    id="toast"
+    class="toast"
+>
+    <span id="toastMessage"></span>
+</div>
+
+
+
+<!-- =========================================================
+     LIBRERÍAS
+     ========================================================= -->
+
+<!-- Leaflet -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Leaflet Draw -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
+<!-- GeoPackage JS -->
+<script src="https://unpkg.com/@ngageoint/geopackage/dist/geopackage.min.js"></script>
+
+
+<!-- =========================================================
+     APLICACIÓN
+     ========================================================= -->
+<script src="app.js"></script>
+
+</body>
+</html>
